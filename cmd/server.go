@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/alist-org/alist/v3/auto"
 	"net"
 	"net/http"
 	"os"
@@ -49,6 +50,7 @@ the address is defined in config file`,
 		r := gin.New()
 		r.Use(gin.LoggerWithWriter(log.StandardLogger().Out), gin.RecoveryWithWriter(log.StandardLogger().Out))
 		server.Init(r)
+		auto.Setup(r.Group("/api"))
 		var httpHandler http.Handler = r
 		if conf.Conf.Scheme.EnableH2c {
 			httpHandler = h2c.NewHandler(r, &http2.Server{})

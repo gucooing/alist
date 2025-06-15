@@ -9,10 +9,11 @@ import (
 	"github.com/alist-org/alist/v3/cmd/flags"
 	"github.com/alist-org/alist/v3/internal/conf"
 	"github.com/alist-org/alist/v3/internal/db"
+	_ "github.com/ncruces/go-sqlite3/embed"
+	"github.com/ncruces/go-sqlite3/gormlite"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
@@ -41,7 +42,7 @@ func InitDB() {
 	var dB *gorm.DB
 	var err error
 	if flags.Dev {
-		dB, err = gorm.Open(sqlite.Open("file::memory:?cache=shared"), gormConfig)
+		dB, err = gorm.Open(gormlite.Open("file::memory:?cache=shared"), gormConfig)
 		conf.Conf.Database.Type = "sqlite3"
 	} else {
 		database := conf.Conf.Database
@@ -51,8 +52,9 @@ func InitDB() {
 				if !(strings.HasSuffix(database.DBFile, ".db") && len(database.DBFile) > 3) {
 					log.Fatalf("db name error.")
 				}
-				dB, err = gorm.Open(sqlite.Open(fmt.Sprintf("%s?_journal=WAL&_vacuum=incremental",
-					database.DBFile)), gormConfig)
+				//dB, err = gorm.Open(gormlite.Open(fmt.Sprintf("%s?_journal=WAL&_vacuum=incremental",
+				//	database.DBFile)), gormConfig)
+				dB, err = gorm.Open(gormlite.Open(database.DBFile), gormConfig)
 			}
 		case "mysql":
 			{
